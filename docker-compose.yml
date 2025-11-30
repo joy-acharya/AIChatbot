@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: chat_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: chat_app
+      MYSQL_USER: chat_user
+      MYSQL_PASSWORD: chat_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      # ✅ this runs schema.sql automatically on first init
+      - ./docker/mysql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      # ✅ this is your data volume (persistent)
+      - db_data:/var/lib/mysql
+
+  app:
+    build: .
+    container_name: chat_backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+
+      # DB envs -> used by your db.ts
+      DB_HOST: db          # service name 'db'
+      DB_PORT: 3306
+      DB_USER: chat_user
+      DB_PASSWORD: chat_pass
+      DB_NAME: chat_app
+
+      # JWT
+      JWT_SECRET: Xd8Ejt51SK3rbu/YMO61lSwkq9TXxxmvbUMuDMC7jsw=
+      JWT_EXPIRES_IN: 7d
+
+    ports:
+      - "4000:4000"
+
+volumes:
+  db_data:
