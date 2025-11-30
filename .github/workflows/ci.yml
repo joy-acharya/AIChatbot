@@ -19,12 +19,7 @@ jobs:
           MYSQL_USER: chat_user
           MYSQL_PASSWORD: chat_pass
         ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h localhost -p root || exit 1"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
+          - "3306:3306"
 
     steps:
       - name: Checkout code
@@ -36,7 +31,7 @@ jobs:
           node-version: "20"
           cache: "npm"
 
-      - name: Install deps
+      - name: Install dependencies
         run: npm ci
 
       - name: Wait for MySQL
@@ -50,9 +45,8 @@ jobs:
             sleep 2
           done
 
-      - name: Run TypeScript build
+      - name: Build TypeScript
         run: npm run build
 
-      # later we’ll swap this to `npm test`
-      - name: Smoke test: tsc + exit
-        run: echo "✅ Build OK, tests to be added soon"
+      - name: Smoke test placeholder
+        run: echo "✅ Build OK – Jest tests coming soon"
